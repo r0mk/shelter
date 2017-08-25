@@ -22,7 +22,10 @@ else:
     sys.exit()
 
 #Open Connection
-tn = telnetlib.Telnet(host)
+try:
+    tn = telnetlib.Telnet(host,timeout=3)
+except:
+    sys.exit('Cant telnet')
 
 
 #Try to guess commutator model by 'sh ver' output
