@@ -215,13 +215,16 @@ def qtech_output_decoration(qtech_raw_output):
 
 def raisecom_output_decoration(raisecom_raw_output):
     result = []
-    word_list = ['off/off', 'InOctets:', 'CRCAlignErrors', 'OutOctets:', 'OutputError(Pkts):', 'dhcp-snooping', 'Hit', 'description', 'circuit-id']
+    word_list = ['off/off', 'InOctets:', 'CRCAlignErrors', 'OutOctets:', 'OutputError(Pkts):', 'dhcp-snooping', 'Hit', 'description', 'circuit-id', 'Static']
     for s in raisecom_raw_output:
         for word in word_list:
             if word in s:
-                s = s.replace('down,', '<b>Operate</b><img src="status_red.gif">')
+                s = s.replace('down', '<b>Operate</b><img src="status_red.gif">')
+                s = s.replace('enableForward', '')
+                s = s.replace('enable   Forward', '')
                 s = s.replace('disable', '<b>Admin</b><img src="status_red.gif">')
                 s = s.replace('enableup', '<b>Admin</b><img src="status_green.gif"><br><b>Operate</b><img src="status_green.gif"><br><b>Speed</b>')
+                s = s.replace('enable', '<b>Admin</b><img src="status_green.gif"><br>')
                 s = s.replace('description', '<b>description</b>')
                 s = s.replace('lldp disable', '')
                 s = s.replace('spanning-tree disable ', '')
