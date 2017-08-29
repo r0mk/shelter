@@ -54,7 +54,7 @@ def model_guess(ip):
         if version.__contains__('ISCOM2128EA-MA-AC'):
             model='RAISECOM ISCOM2128EA-MA-AC'
         if version.__contains__('QSW-2800-28T-AC'):
-           model='QTECH QSW-2800-28T-AC'
+           model='Qtech QSW-2800-28T-AC'
         if version.__contains__('QSW-2850-28T-AC,'):
             model='Qtech QSW-2850-28T-AC'
         if version.__contains__('QSW-3470-28T-AC'):
@@ -92,6 +92,31 @@ def huawei_get_info(port):
     huawei_raw_output.extend((tn.expect(['>'])[2]).split('\n'))
     return (huawei_raw_output)
 
+#Qtech
+def qtech_get_info(port):
+    qtech_raw_output = []
+    tn.write('terminal length 0\n')
+    tn.expect(['#'])[2]
+    if model == 'Qtech QSW-2800-28T-AC':
+        tn.write('sh int Ethernet 1/' + port + '\n')
+        qtech_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
+        tn.write('sh mac-address-t int ethernet1/' + port + '\n')
+        qtech_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
+        tn.write('sh ru int ethernet1/' + port + '\n')
+        qtech_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
+    elif model == 'Qtech QSW-2850-28T-AC':
+        tn.write('sh int Ethernet 1/0/' + port + '\n')
+        qtech_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
+        tn.write('sh mac-address-t int ethernet1/0/' + port + '\n')
+        qtech_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
+        tn.write('sh ru int ethernet1/0/' + port + '\n')
+        qtech_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
+    else:
+        print "Qtech model detection problem"
+        sys.exit()
+    return qtech_raw_output
+
+
 #Edge core
 def edge_core_get_info(port):
     edgecore_raw_output=[]
@@ -101,12 +126,11 @@ def edge_core_get_info(port):
     edgecore_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
     tn.write('show interfaces status ethernet 1/' + port + '\n')
     edgecore_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
-    tn.write('sh running-config interface ethernet 1/' + port + '\n')
+    tn.write('sh running-config int ethernet 1/' + port + '\n')
     edgecore_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
     tn.write('show mac-address-table interface ethernet 1/' + port + '\n')
     edgecore_raw_output.extend((tn.expect(['#'])[2]).split('\n'))
     return edgecore_raw_output
-
 
 #Decorate switch output
 def huawei_output_decoration(huawei_raw_output):
@@ -124,6 +148,15 @@ def edge_core_output_decoration(edgecore_raw_output):
             if word in s:
                 print(s)
 
+def qtech_output_decoration(qtech_raw_output):
+    word_list = ['line protocol', 'last status change', 'input packet', 'input error', 'output packet', 'output error', 'DYNAMIC', 'SECURED', 'subscriber-id', 'description' ]
+    for s in qtech_raw_output:
+        for word in word_list:
+            if word in s:
+                print(s)
+
+
+#Main. Get data from switch and decorate
 if 'HUAWEI' in model.split(' '):
     huawei_raw_output = huawei_get_info(port)
     huawei_output_decoration(huawei_raw_output)
@@ -131,6 +164,13 @@ if 'HUAWEI' in model.split(' '):
 if model == 'Edge Core':
     edgecore_raw_output = edge_core_get_info(port)
     edge_core_output_decoration(edgecore_raw_output)
+
+if 'Qtech'  in model.split(' '):
+    qtech_raw_output = qtech_get_info(port)
+    qtech_output_decoration(qtech_raw_output)
+
+
+
 
 
     
