@@ -41,7 +41,7 @@ def model_guess(ip):
     version=(tn.expect(['>','#'])[2]).split()
     #Uncomment next line and comment previous to debug
     #print(tn.expect(['>','#'])[2]).split(' ')
-    if version.__contains__('V100R005C01SPC100)'):
+    if version.__contains__('V100R005C01SPC100)') or version.__contains__('V100R005C01)') :
         model='HUAWEI V100R005C01SPC100'
     elif version.__contains__('V100R006C05)'):
         model='HUAWEI V100R006C05'
@@ -162,8 +162,8 @@ def huawei_output_decoration(huawei_raw_output):
     for s in huawei_raw_output:
         for word in word_list: 
             if word in s:
-                s = s.replace('DOWN', ' <img src="status_red.gif">')
-                s = s.replace('UP', ' <img src="status_green.gif">')
+                s = s.replace('DOWN', 'Down <img src="status_red.gif">')
+                s = s.replace('UP', 'Up <img src="status_green.gif">')
                 s = s.replace('Administratively', '<b>Administratively</b>')
                 s = s.replace('Loopback: NONE', '')
                 s = s.replace('Loopback: NONE', '')
@@ -185,8 +185,8 @@ def edge_core_output_decoration(edgecore_raw_output):
     for s in edgecore_raw_output:
         for word in word_list:
             if word in s:
-                s = s.replace(' Up', '<img src="status_green.gif">')
-                s = s.replace(' Down', '<img src="status_red.gif">')
+                s = s.replace(' Up', 'Up <img src="status_green.gif">')
+                s = s.replace(' Down', 'Down <img src="status_red.gif">')
                 s = s.replace('Operation Speed-duplex:', '<b>Speed</b>')
                 s = s.replace('ip dhcp snooping information option circuit-id string', '<b>Login</b>')
                 result.append(s)
@@ -199,9 +199,9 @@ def qtech_output_decoration(qtech_raw_output):
         for word in word_list:
             if word in s:
                 s = s.replace('ip dhcp snooping information option subscriber-id', '<b>Login</b>')
-                s = s.replace('down,', '<img src="status_red.gif">')
-                s = s.replace('down', '<img src="status_red.gif">')
-                s = s.replace(' up', '<img src="status_green.gif">')
+                s = s.replace('down,', 'Down <img src="status_red.gif">')
+                s = s.replace('down', ' Down <img src="status_red.gif">')
+                s = s.replace(' up', 'up <img src="status_green.gif">')
                 s = s.replace('administratively', '<b>Administratively</b>')
                 s = s.replace(', Auto-speed:', '<br>  <b>Speed</b>')
                 s = s.replace('Auto-duplex:', '<b>Duplex:</b>')
@@ -219,12 +219,12 @@ def raisecom_output_decoration(raisecom_raw_output):
     for s in raisecom_raw_output:
         for word in word_list:
             if word in s:
-                s = s.replace('down', '<b>Operate</b><img src="status_red.gif">')
+                s = s.replace('down', 'down <b>Operate</b><img src="status_red.gif">')
                 s = s.replace('enableForward', '')
                 s = s.replace('enable   Forward', '')
-                s = s.replace('disable', '<b>Admin</b><img src="status_red.gif">')
-                s = s.replace('enableup', '<b>Admin</b><img src="status_green.gif"><br><b>Operate</b><img src="status_green.gif"><br><b>Speed</b>')
-                s = s.replace('enable', '<b>Admin</b><img src="status_green.gif"><br>')
+                s = s.replace('disable', '<b>Admin</b> down <img src="status_red.gif">')
+                s = s.replace('enableup', '<b>Admin</b> up <img src="status_green.gif"><br><b>Operate</b><img src="status_green.gif"><br><b>Speed</b>')
+                s = s.replace('enable', '<b>Admin</b> up <img src="status_green.gif"><br>')
                 s = s.replace('description', '<b>description</b>')
                 s = s.replace('lldp disable', '')
                 s = s.replace('spanning-tree disable ', '')
