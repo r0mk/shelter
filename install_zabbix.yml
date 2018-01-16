@@ -1,0 +1,27 @@
+- hosts: servers
+  remote_user: remoteagent
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars:
+    ansible_ssh_private_key_file: "/home/remoteagent/.ssh/id_rsa"
+  tasks:
+  - name: "install python 2"
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+  - name: "install zabbix-agent"
+    raw: test -e /usr/sbin/zabbix_agentd || cd /root && wget http://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.0-1+xenial_all.deb && dpkg -i zabbix-release_3.0-1+xenial_all.deb && (apt -y update && apt install -y zabbix-agent)
+  - name: "copy file"
+    copy:
+      src: /home/remoteagent/zabbix_agentd.conf
+      dest: /etc/zabbix/zabbix_agentd.conf
+  - name: "create dir FOR zabbix"
+    shell: mkdir /var/lib/zabbix; echo  "create user 'zabbix'@'localhost' IDENTIFIED BY PASSWORD '*_PASSWORD_HASH_';" | mysql -N; echo  "GRANT usage ON *.* TO zabbix@localhost IDENTIFIED BY PASSWORD '*_PASSWORD_HASH_';" | mysql -N
+  - name: "copy mysql file"
+    copy:
+      src: /home/remoteagent/.my.cnf
+      dest: /var/lib/zabbix/.my.cnf
+  - name: "Add iptables rule for zabbix"
+    shell: iptables -I INPUT -s _ZABBIX_IP_/32 -p tcp -m comment --comment zabbix -m tcp --dport 10050 -j ACCEPT
+  - name: "restart zabbix agent"
+    shell: id; systemctl restart zabbix-agent
+
