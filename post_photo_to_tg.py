@@ -4,6 +4,14 @@ import sys
 import os
 import random
 
+
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters
+from telegram.ext.filters import Filters
+from telegram import Bot
+
+updater = Updater('#######################3')
+dp = updater.dispatcher
+
 img_ext = ['jpg','png','peg','img']
 
 directory = sys.argv[1]
@@ -49,8 +57,11 @@ while True:
     dir_list = os.scandir(directory)
     random_dir = select_subdir()
     print('Random dir is ' + random_dir)
-    if image_founder(random_dir):
+    image = image_founder(random_dir)
+    if image:
         print('Hoooray')
+        #bot.sendMessage(chat_id=update.message.chat_id, text="Ваше мнение очень важно для нас")
+        dp.bot.sendPhoto(chat_id='@shelter2',photo=open(directory + random_dir + '/' + image, 'rb') , caption=str(random_dir))
         break 
     else:
         print('trying next subdir\n')
