@@ -16,8 +16,7 @@ def hello(bot, update):
         update.message.reply_text(
                 'Hello {}'.format(update.message.from_user.first_name))
 
-#Put your bot hash HERE 
-updater = Updater('')
+updater = Updater('415897248:AAHjlBMSrlXmnEaDkdmlCxvjS-Ct6vOzDhE')
 
 updater.dispatcher.add_handler(CommandHandler('hello', hello))
 
