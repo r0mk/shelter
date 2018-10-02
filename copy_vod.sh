@@ -19,19 +19,23 @@ while true; do
     counter=$((counter + 1))
     echo $counter
     else
+    if [ `ffprobe -i  $UPLOAD/$RANDOM_FILE -show_format -v quiet  | grep format_name | grep 'mp4'` ]; then
         echo "New will be $UPLOAD/$RANDOM_FILE"
-        touch "$HISTORY/$RANDOM_FILE" 
+        touch "$HISTORY/$RANDOM_FILE"
         scp "$UPLOAD/$RANDOM_FILE" "$DESTINATION`echo "$RANDOM_FILE" | tr ' ' '_' | tr ',' '_' | tr '-' '_'`"
-    echo "Copied $copied"
-    copied=$((copied + 1))
+        echo "Copied $copied"
+        copied=$((copied + 1))
+    else
+        echo "Wrong encoding $UPLOAD/$RANDOM_FILE"
+        touch "$HISTORY/$RANDOM_FILE"
     fi
-    if [ $counter -ge 300 ]; then 
+    fi
+    if [ $counter -ge 300 ]; then
         echo "No suitable file found. Does not to copy. exit"
         break
     fi
-    if [ $copied -ge 11 ]; then 
+    if [ $copied -ge 11 ]; then
         echo "I am copy 10 files. Enough for today. exit"
         break
     fi
 done
-
