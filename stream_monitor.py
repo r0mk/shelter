@@ -1,9 +1,6 @@
 #!/usr/bin/python2
-<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 
-=======
->>>>>>> 6c23e26d10c95e027a5a278ea412b033408aca34
 '''
 
 Future:
@@ -45,26 +42,15 @@ send_to_id = '-287220904' #Group
 #send_to_id = '213833037' #r0mk
 #send_to_id = '266734807' #John
 # Set how often you want to check in seconds
-<<<<<<< HEAD
 SLEEP_TIME = 10
-=======
-SLEEP_TIME = 30
->>>>>>> 6c23e26d10c95e027a5a278ea412b033408aca34
 FFPROBE = "/usr/bin/ffprobe"
 
 with open('/root/streams.list','r') as f:
     stream_list = f.read().splitlines()
 f.close
-<<<<<<< HEAD
 stream_dict = dict.fromkeys(stream_list,{'video_cur':1,'audio_cur':1, 'video_prev':1, 'audio_prev':1})
 #print(stream_list)
 #print(stream_dict)
-=======
-stream_dict = dict.fromkeys(stream_list,1)
-print(stream_list)
-print(stream_dict)
-
->>>>>>> 6c23e26d10c95e027a5a278ea412b033408aca34
 # List of streams to check
 #CHECK_STREAMS = ['http://192.99.149.103:8080/mtl_ca/108_CW_NewYork_3236_208/index.m3u8', 'http://54.39.106.158:80/kids/NICKJRUSA/index.m3u8', 'http://54.39.106.158:80/tamil/STARVIJAYHDUS/index.m3u8', 'http://54.39.106.158:80/tamil/SUNMUSICHDUS/index.m3u8', 'http://54.39.106.158:80/tamil/COLORSTAMILHDUS/index.m3u8', 'http://54.39.106.158:80/tamil/NATGEOWILDTAMILUS/index.m3u8']
 #CHECK_STREAMS = ['http://54.39.106.158:80/caribban/POWER106FM/index.m3u8a']
@@ -138,7 +124,6 @@ def run(q, ffcmd, thread_name):
          
 def probe(stream):
     probeq = Queue()
-<<<<<<< HEAD
     logging.info("\n\nChecking " + stream)
     probeproc = run(probeq, FFPROBE + " " + stream, "probethread")
     global stream_dict
@@ -213,52 +198,6 @@ def probe(stream):
             #time.sleep(1)
         except Empty:
             pass
-=======
-    logging.info("Checking " + stream)
-    probeproc = run(probeq, FFPROBE + " " + stream, "probethread")
-    # Need to read from the queue until the queue is empty and process has exited
-    while (True):
-        #print "Queue not empty"
-#        print probeq.join()
-        try:
-            line = probeq.get_nowait()
-            logging.info(line)
-            '''
-            Possible error responses:
-            Server error: Failed to play stream
-            Input/output error
-            
-            Need a regex to match for video found!
-            Sample: Stream #0:0: Video: h264 (Baseline), yuv420p, 640x360 [SAR 1:1 DAR 16:9], 655 kb/s, 25 tbr, 1k tbn, 50 tbc
-            Should also look for audio
-            '''
-           
-            if ("Stream #0:0: Video" in line):
-                logging.info("Found stream " + stream)
-                logging.info(line)
-                return True
-            if ("Stream #0:1: Video" in line):
-                logging.info("Found stream " + stream)
-                logging.info(line)
-                return True
-            if ("Stream #0:0: Audio" in line):
-                logging.info("Found stream " + stream)
-                logging.info(line)
-                return False
-            elif ("error" in line):
-                return False
-            elif (probeproc.poll() > 0):
-                return False
-            
-            # Stream #0:0: Audio: aac
-            # Make sure we don't spin out of control
-            #time.sleep(1)
-            
-        except Empty:
-            pass
-        
-    
->>>>>>> 6c23e26d10c95e027a5a278ea412b033408aca34
     return False
 
 def live_probe():
@@ -269,7 +208,6 @@ def live_probe():
 while(True):
     #for stream in CHECK_STREAMS:
     for stream in stream_dict.keys(): 
-<<<<<<< HEAD
     #for stream in stream_dict: 
         if probe(stream):
             print(stream_dict)
@@ -335,52 +273,4 @@ while(True):
     print(stream + ' else  aud_prev   ' + str(stream_dict[stream]['audio_prev']))
  
     print('\n\n')
-=======
-        if (probe(stream)):
-	    if stream_dict[stream] == 0:
-                #idata = urllib.urlencode({ 'chat_id': send_to_id, 'text': '<b>' + 'Stream restored: \n' +  '</b>' + str(stream), 'parse_mode': 'HTML', 'disable_web_page_preview': 1})
-                url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
-
-                try:
-                    time.sleep(1)
-                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=Stream restored\n"  + str(stream) + "'"
-                    os.system(command)
-                    #f = urllib.urlopen(url, idata)
-                    #print(f.read())
-                except:
-                    print('cant send')
-                    pass
-                
-            stream_dict[stream] = 1
-
-        else:
-            logging.info("Error with " + stream + " sending alert")
-            '''
-            This needs to check if there has already been an error message sent
-            If so it shouldn't send another one for x mins
-            Also needs to send a message when the problem is cleared
-            '''
-            #send_message(stream)
-            #idata = idata.encode('ascii')
-            #req = urllib.request.Request('https://api.telegram.org/bot' + bot_id + '/sendMessage' )
-
-	    if stream_dict[stream] == 1:
-                #idata = urllib.urlencode({ 'chat_id': send_to_id, 'text': '<b>' + 'problem with stream: \n' +  '</b>' + str(stream), 'parse_mode': 'HTML', 'disable_web_page_preview': 1})
-                url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
-
-                try:
-                    time.sleep(1)
-                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=problem with stream\n"  + str(stream) + "'"
-                    print(command)
-                    #f = os.system("curl -s -X POST" + url + "-d chat_id=" + send_to_id + "-d text=" + idata + "")
-                    os.system(command)
-                    #print(f)
-                    #f = urllib2.urlopen(url, idata)
-                    #print(f.read())
-                except:
-                    print('cant send')
-                    pass
-
-            stream_dict[stream] = 0
->>>>>>> 6c23e26d10c95e027a5a278ea412b033408aca34
     time.sleep(SLEEP_TIME)
