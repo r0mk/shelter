@@ -1,4 +1,6 @@
 #!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
 '''
 
 Future:
@@ -34,20 +36,24 @@ logging.basicConfig(level=logging.DEBUG,
 logging.info("Starting")
 
 # You will need to register bot in @BotFather 
-bot_id = ''
+bot_id = '766315820:AAGCVu4lSJceBqAt9Pzi-3PD8HnpR0x7jJo'
 #ID from @MyTelegramID_bot
+send_to_id = '-287220904' #Group
 #send_to_id = '213833037' #r0mk
+#send_to_id = '266734807' #John
 # Set how often you want to check in seconds
-SLEEP_TIME = 30
+SLEEP_TIME = 10
 FFPROBE = "/usr/bin/ffprobe"
 
 with open('/root/streams.list','r') as f:
     stream_list = f.read().splitlines()
 f.close
-stream_dict = dict.fromkeys(stream_list,1)
-print(stream_list)
-print(stream_dict)
-
+stream_dict = dict.fromkeys(stream_list,{'video_cur':1,'audio_cur':1, 'video_prev':1, 'audio_prev':1})
+#print(stream_list)
+#print(stream_dict)
+# List of streams to check
+#CHECK_STREAMS = ['http://192.99.149.103:8080/mtl_ca/108_CW_NewYork_3236_208/index.m3u8', 'http://54.39.106.158:80/kids/NICKJRUSA/index.m3u8', 'http://54.39.106.158:80/tamil/STARVIJAYHDUS/index.m3u8', 'http://54.39.106.158:80/tamil/SUNMUSICHDUS/index.m3u8', 'http://54.39.106.158:80/tamil/COLORSTAMILHDUS/index.m3u8', 'http://54.39.106.158:80/tamil/NATGEOWILDTAMILUS/index.m3u8']
+#CHECK_STREAMS = ['http://54.39.106.158:80/caribban/POWER106FM/index.m3u8a']
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 
@@ -118,50 +124,80 @@ def run(q, ffcmd, thread_name):
          
 def probe(stream):
     probeq = Queue()
-    logging.info("Checking " + stream)
+    logging.info("\n\nChecking " + stream)
     probeproc = run(probeq, FFPROBE + " " + stream, "probethread")
+    global stream_dict
+    print(stream + '   probe vid_cur   ' + str(stream_dict[stream]['video_cur']))
+    print(stream + '   probe vid_prev   ' + str(stream_dict[stream]['video_prev']))
+    print(stream + '   probe aud_cur    ' + str(stream_dict[stream]['audio_cur']))
+    print(stream + '   probe aud_prev   ' + str(stream_dict[stream]['audio_prev']))
     # Need to read from the queue until the queue is empty and process has exited
+    close_time = time.time()+10
     while (True):
+        #print('in loop ' + stream)
         #print "Queue not empty"
-#        print probeq.join()
+        if time.time() > close_time:
+            return True
+        #print probeq.join()
         try:
             line = probeq.get_nowait()
-            logging.info(line)
-            '''
-            Possible error responses:
-            Server error: Failed to play stream
-            Input/output error
-            
-            Need a regex to match for video found!
-            Sample: Stream #0:0: Video: h264 (Baseline), yuv420p, 640x360 [SAR 1:1 DAR 16:9], 655 kb/s, 25 tbr, 1k tbn, 50 tbc
-            Should also look for audio
-            '''
-           
+            #logging.info(line)
+            #print(time.time())
             if ("Stream #0:0: Video" in line):
                 logging.info("Found stream " + stream)
                 logging.info(line)
-                return True
+                params = {}
+                params = dict(stream_dict[stream].items())
+                params['video_cur'] = '1'
+                stream_dict.update({stream:params})
+                #return True
             if ("Stream #0:1: Video" in line):
                 logging.info("Found stream " + stream)
                 logging.info(line)
-                return True
+                params = {}
+                params = dict(stream_dict[stream].items())
+                params['video_cur'] = '1'
+                stream_dict.update({stream:params})
+                #return True
             if ("Stream #0:0: Audio" in line):
                 logging.info("Found stream " + stream)
                 logging.info(line)
-                return False
+                params = {}
+                params = dict(stream_dict[stream].items())
+                params['audio_cur'] = '1'
+                stream_dict.update({stream:params})
+                #return True
+            if ("Stream #0:1: Audio" in line):
+                logging.info("Found stream " + stream)
+                logging.info(line)
+                params = {}
+                params = dict(stream_dict[stream].items())
+                params['audio_cur'] = '1'
+                stream_dict.update({stream:params})
+                #return True
             elif ("error" in line):
-                return False
+                #print('\n\nupdating stream to error ' + str(stream_dict[stream].items()))
+                params = {}
+                params = dict(stream_dict[stream].items())
+                params['audio_cur'] = '0'
+                params['video_cur'] = '0'
+                stream_dict.update({stream:params})
+                #stream_dict.update({stream:{'video_cur' : 'error', 'audio_cur' : 'error'}})
+                #stream_dict[stream].update({'video_cur' : 'error', 'audio_cur' : 'error'})
+                #stream_dict[stream]['audio_cur'] = 'error'
+                #stream_dict[stream]['video_cur'] = 'error'
+                #print('\n\n\nupdating D to error ' + str(di))
+                return True
             elif (probeproc.poll() > 0):
-                return False
-            
-            # Stream #0:0: Audio: aac
-            # Make sure we don't spin out of control
+                params = {}
+                params = dict(stream_dict[stream].items())
+                params['audio_cur'] = '0'
+                params['video_cur'] = '0'
+                stream_dict.update({stream:params})
+                return True
             #time.sleep(1)
-            
         except Empty:
             pass
-        
-    
     return False
 
 def live_probe():
@@ -172,50 +208,69 @@ def live_probe():
 while(True):
     #for stream in CHECK_STREAMS:
     for stream in stream_dict.keys(): 
-        if (probe(stream)):
-	    if stream_dict[stream] == 0:
-                #idata = urllib.urlencode({ 'chat_id': send_to_id, 'text': '<b>' + 'Stream restored: \n' +  '</b>' + str(stream), 'parse_mode': 'HTML', 'disable_web_page_preview': 1})
+    #for stream in stream_dict: 
+        if probe(stream):
+            print(stream_dict)
+            if int(stream_dict[stream]['video_cur']) > int(stream_dict[stream]['video_prev']): 
+                print(stream + '   vid_cur   ' + str(stream_dict[stream]['video_cur']))
+                print(stream + '   vid_prev   ' + str(stream_dict[stream]['video_prev']))
+                print(stream + '   aud_cur    ' + str(stream_dict[stream]['audio_cur']))
+                print(stream + '   aud_prev   ' + str(stream_dict[stream]['audio_prev']))
+                stream_dict[stream]['video_prev'] = 1
                 url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
-
+                command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=✅  Stream  🎬Video  Restored\n" + str(stream) + "'" 
+                print(command)
                 try:
-                    time.sleep(1)
-                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=Stream restored\n"  + str(stream) + "'"
-                    os.system(command)
-                    #f = urllib.urlopen(url, idata)
-                    #print(f.read())
+                    #command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=✅  Stream  🎬Video  Restored\n" + str(stream) + "'" 
+                    print(os.system(command))
                 except:
-                    print('cant send')
-                    pass
-                
-            stream_dict[stream] = 1
-
-        else:
-            logging.info("Error with " + stream + " sending alert")
-            '''
-            This needs to check if there has already been an error message sent
-            If so it shouldn't send another one for x mins
-            Also needs to send a message when the problem is cleared
-            '''
-            #send_message(stream)
-            #idata = idata.encode('ascii')
-            #req = urllib.request.Request('https://api.telegram.org/bot' + bot_id + '/sendMessage' )
-
-	    if stream_dict[stream] == 1:
-                #idata = urllib.urlencode({ 'chat_id': send_to_id, 'text': '<b>' + 'problem with stream: \n' +  '</b>' + str(stream), 'parse_mode': 'HTML', 'disable_web_page_preview': 1})
-                url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
-
-                try:
-                    time.sleep(1)
-                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=problem with stream\n"  + str(stream) + "'"
                     print(command)
-                    #f = os.system("curl -s -X POST" + url + "-d chat_id=" + send_to_id + "-d text=" + idata + "")
-                    os.system(command)
-                    #print(f)
-                    #f = urllib2.urlopen(url, idata)
-                    #print(f.read())
-                except:
-                    print('cant send')
+                    print('Cant send Stream Video Restored\n')
                     pass
-
-            stream_dict[stream] = 0
+            if int(stream_dict[stream]['video_cur']) < int(stream_dict[stream]['video_prev']): 
+                print(stream + '   vid_cur   ' + str(stream_dict[stream]['video_cur']))
+                print(stream + '   vid_prev   ' + str(stream_dict[stream]['video_prev']))
+                print(stream + '   aud_cur    ' + str(stream_dict[stream]['audio_cur']))
+                print(stream + '   aud_prev   ' + str(stream_dict[stream]['audio_prev']))
+                stream_dict[stream]['video_prev'] = 0
+                url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
+                try:
+                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=📛Stream 🎬Video Lost\n" + str(stream) + "'" 
+                    print(os.system(command))
+                except:
+                    print('Cant send Stream Video Lost\n')
+                    pass
+            if int(stream_dict[stream]['audio_cur']) < int(stream_dict[stream]['audio_prev']):
+                print(stream + '   vid_cur   ' + str(stream_dict[stream]['video_cur']))
+                print(stream + '   vid_prev   ' + str(stream_dict[stream]['video_prev']))
+                print(stream + '   aud_cur    ' + str(stream_dict[stream]['audio_cur']))
+                print(stream + '   aud_prev   ' + str(stream_dict[stream]['audio_prev']))
+                stream_dict[stream]['audio_prev'] = 0
+                url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
+                try:
+                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=📛Stream 🎼Au  Audio Lost\n"  + str(stream) + "'"
+                    os.system(command)
+                except:
+                    print('Cant send\n')
+                    pass
+            if int(stream_dict[stream]['audio_cur']) > int(stream_dict[stream]['audio_prev']):
+                print(stream + '   vid_cur   ' + str(stream_dict[stream]['video_cur']))
+                print(stream + '   vid_prev   ' + str(stream_dict[stream]['video_prev']))
+                print(stream + '   aud_cur    ' + str(stream_dict[stream]['audio_cur']))
+                print(stream + '   aud_prev   ' + str(stream_dict[stream]['audio_prev']))
+                url = 'https://api.telegram.org/bot' + bot_id + '/sendMessage'
+                try:
+                    time.sleep(1)
+                    command = "curl -s -X POST " + url + " -d chat_id=" + send_to_id + " -d 'text=✅Stream  🎼   Audio Restored\n"  + str(stream) + "'"
+                    os.system(command)
+                except:
+                    print('Cant send Stream Audio Restored\n' + os.read() )
+                    pass
+                stream_dict[stream]['audio_prev'] = 1
+    print(stream + ' else  vid_cur   ' + str(stream_dict[stream]['video_cur']))
+    print(stream + ' else  vid_prev   ' + str(stream_dict[stream]['video_prev']))
+    print(stream + ' else  aud_cur    ' + str(stream_dict[stream]['audio_cur']))
+    print(stream + ' else  aud_prev   ' + str(stream_dict[stream]['audio_prev']))
+ 
+    print('\n\n')
     time.sleep(SLEEP_TIME)
