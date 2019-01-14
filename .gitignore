@@ -1,3 +1,6 @@
 *.[oa]
 *~
 *.pyc
+*.tar
+token.json
+credentials.json
