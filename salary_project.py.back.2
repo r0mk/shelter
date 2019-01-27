@@ -1,18 +1,9 @@
 #!/usr/bin/python3
-#Install: pip3 install openpyxl 
 import sys
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 import datetime
-#wb2 = load_workbook('schedule.xlsx',data_only = True)
-if len(sys.argv) < 2:
-    print('Usage ./script file.xlsx')
-    sys.exit()
-try:
-    wb2 = load_workbook(sys.argv[1],data_only = True)
-except:
-    print('File {} not found'.format(sys.argv[1]))
-
+wb2 = load_workbook('schedule.xlsx',data_only = True)
 sheet_ranges = wb2[wb2.sheetnames[0]]
 #print(wb2.sheetnames)
 rows = sheet_ranges.iter_rows(min_row=1, max_row=1)
@@ -26,6 +17,7 @@ for cell in first_row:
         #print('column name ' + str(cell.value))
         #print(dir(cell.value))
         pass
+
 year = sheet_ranges['D1'].value.year
 month = sheet_ranges['D1'].value.month
 print(year)
@@ -33,10 +25,6 @@ print(month)
 
 first_col = next(employee_id)
 col_lenth = len(first_col)
-
-with open('Output.csv','w') as f:
-    f.write('Loonjaar,Periode,Medewerker,Type,Salaris component,Invoer type,Waarde\n')
-
 for cell in first_col:
     earned = []
     if cell.value and cell.value not in not_needed:
@@ -56,7 +44,7 @@ for cell in first_col:
                 #print(earned)
             else:
                 #earned.append(sheet_ranges['AI'][cell.row + pos_counter - 1].value)
-                #print('Continue with next employee\n\n')
+                print('Continue with next employee\n\n')
                 #print(earned)
                 break
         worked_days = 0
@@ -74,14 +62,8 @@ for cell in first_col:
                 #print('pos_count ' + str(position))
                 #print('work on day:' + str(sheet_ranges['AI'][cell.row + pos_counter ].value))
         try:
-            print('{},{},{},1,,1,{}'.format(year,month,cell.value,worked_days))
-            print('{},{},{},2,,1,{}'.format(year,month,cell.value,round(sum(worked_hours))))
-            with open('Output.csv','a') as f:
-                f.write('{},{},{},1,,1,{}\n'.format(year,month,cell.value,worked_days))
-                f.write('{},{},{},2,,1,{}\n'.format(year,month,cell.value,round(sum(worked_hours))))
-
-            #print('positions count: ' + str(pos_counter) + 'id:' + str(cell.value))
-            #print('id: ' + str(cell.value) + 'work days ' + str(worked_days) + '  worked hours: ' + str(sum(worked_hours)))
+            print('positions count: ' + str(pos_counter) + 'id:' + str(cell.value))
+            print('id: ' + str(cell.value) + 'work days ' + str(worked_days) + '  worked hours: ' + str(sum(worked_hours)))
             #print('positions count: ' + str(pos_counter) + ' Earned ' + str(sum(earned)) + '    id:' + str(cell.value))
             #print('id: ' + str(cell.value) +  '  Earned: ' + str(sum(earned.remove(None))) + '  work days: ' + str(worked_days.remove(None)) + '  worked hours: ' + str(sum(worked_hours.remove(None))))
         except:

@@ -36,17 +36,34 @@ if not client.is_user_authorized():
 
 client.updates.polling = True
 
-channel_manual = client.get_entity('t.me/' + channel_from)
+#channel_manual = client.get_entity('t.me/' + channel_from)
+#response = client.invoke(ResolveUsernameRequest())
+#response = client.invoke(SearchRequest(q='shelter', limit=3))
+#response = client.invoke(GetContactsRequest(api_hash))
+response = client.get_dialogs(limit=20)
+#print(dir(client.get_dialogs))
+for every in response:
+        print(dir(every))
+        result = re.search('Shelter.*',str(every.entity))
+        if result:
+            print(result.group(0))
+
+        #if every.entity.name:
+        #    print(every.entity.title)
+
+#print(every.input_entity)
+
+channel_manual = client.get_entity('telegram.me/testingforwardbot')
 print("Channel to: " + str(channel_manual.title))
 print("Channel to ID: " + str(channel_manual.id))
 print("Channel to Hash: " + str(channel_manual.access_hash))
 channel_from_input_peer = InputPeerChannel(channel_manual.id, channel_manual.access_hash)
 
-channel_to = client.get_entity('t.me/' + channel_to_send)
-print("Channel to: " + str(channel_to.title))
-print("Channel to ID: " + str(channel_to.id))
-print("Channel to Hash: " + str(channel_to.access_hash))
-channel_to_input_peer = InputPeerChannel(channel_to.id, channel_to.access_hash)
+#channel_to = client.get_entity('t.me/' + channel_to_send)
+#print("Channel to: " + str(channel_to.title))
+#print("Channel to ID: " + str(channel_to.id))
+#print("Channel to Hash: " + str(channel_to.access_hash))
+#channel_to_input_peer = InputPeerChannel(channel_to.id, channel_to.access_hash)
 
 #try:
 #    channel_from_input_peer = client(SearchRequest(q=channel_manual, limit=1))
@@ -83,6 +100,7 @@ channel_to_input_peer = InputPeerChannel(channel_to.id, channel_to.access_hash)
 
 while True:
     update = client.updates.poll()
+    print(update)
     if type(update) == UpdateNewChannelMessage and update.message.to_id.channel_id == channel_manual.id:
         print('message id ' + str(update.message.id))
         print('channel id ' + str(update.message.to_id.channel_id))
