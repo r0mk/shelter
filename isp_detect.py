@@ -59,7 +59,11 @@ def insert_to_db(ip_list):
         cur = conn.cursor()
         # execute the INSERT statement
         for ip in ip_list.keys():
-            cur.execute(sql,(ip,ip_list[ip]))
+            try:
+                cur.execute(sql,(ip,ip_list[ip]))
+            except:
+                pass
+                #print("Alredy in DB " + ip )
         conn.commit()
         cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -73,7 +77,7 @@ ip_list = get_ip_from_log(filename)
 insert_to_db(ip_list)
 
 def get_empty_ip():
-    sql = """SELECT ip FROM ips WHERE org IS NULL;"""
+    sql = """SELECT ip FROM ips WHERE received IS NULL;"""
     conn = None
     try:
         # read database configuration
@@ -102,9 +106,22 @@ def fill_database(empty_ip):
     counter = 0
     for ip in empty_ip:
         if counter < 149:
-            print("less then minute")
             print("ip: " + ip[0])
             data = ipapi.location(ip[0]) 
+            try:
+                conn = None
+                params = config()
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+                sql = """UPDATE ips SET received = 1, org = %s, region = %s, country = %s, country_name = %s, city = %s, asn = %s where ip = %s RETURNING ip;"""
+                cur.execute(sql,(data['org'], data['region'], data['country'], data['country_name'], data['city'], data['asn'], ip[0],))
+                conn.commit()
+                cur.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
             counter = counter + 1
             print(data)
         else:
@@ -114,6 +131,6 @@ def fill_database(empty_ip):
             counter = 0
 
 fill_database(empty_ip)
-
+print('done')
 
 
