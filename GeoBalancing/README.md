@@ -11,7 +11,7 @@ This instruction tested on Debian 9, but most likely will work on any ubuntu
 Used nginx versiont 1.14.1, but will work on nginx 1.9.11+
 If you decide to use nginx 1.14.1 you may omit compilation step 3, and take compiled module from this repo.
 
-##### 1. Install dependecies
+#### 1. Install dependecies
 For maxminddb:
 
 ```
@@ -23,7 +23,7 @@ For nginx compilation:
 $sudo apt install nginx libxslt-dev libxslt1-dev libgeoip-dev libgd-dev libpcre++-dev libpcre++0v5 zlib1g zlib1g-dev libssl-dev
 ```
 
-##### 2. Get geoip2 module
+#### 2. Get geoip2 module
 
 Its official repository of geoip2 module
 
@@ -31,7 +31,7 @@ Its official repository of geoip2 module
 git clone https://github.com/leev/ngx_http_geoip2_module
 ```
 
-##### 3. Compile nginx.
+#### 3. Compile nginx.
 First of all lets check current nginx version
 
 ```
@@ -69,7 +69,7 @@ After make finish, we will have compiled module in obj/ngx_http_geoip2_module.so
 
 Now copy it to nginx directory
 
-===== 4.Preparing nginx configuration
+==== 4.Preparing nginx configuration
 
 Copy geoip2 module to nginx modules directory
 ```
@@ -162,7 +162,7 @@ server {
 
 ```
 
-##### 5 Create docker containers for test(Optional)
+#### 5 Create docker containers for test(Optional)
 
 Build image that listen port 80 and return container hostname:
 ```
