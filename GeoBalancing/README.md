@@ -69,7 +69,7 @@ After make finish, we will have compiled module in obj/ngx_http_geoip2_module.so
 
 Now copy it to nginx directory
 
-==== 4.Preparing nginx configuration
+#### 4.Preparing nginx configuration
 
 Copy geoip2 module to nginx modules directory
 ```
