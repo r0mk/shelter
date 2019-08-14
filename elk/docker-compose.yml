@@ -9,18 +9,11 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: changeme
     networks:
       - elk
 
   logstash:
-    build:
-      context: logstash/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    image: docker.elastic.co/logstash/logstash:7.3.0 
     ports:
       - "5000:5000"
       - "9600:9600"
@@ -32,12 +25,7 @@ services:
       - elasticsearch
 
   kibana:
-    build:
-      context: kibana/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    image: docker.elastic.co/kibana/kibana:7.3.0
     ports:
       - "5601:5601"
     networks:
@@ -46,6 +34,5 @@ services:
       - elasticsearch
 
 networks:
-
   elk:
-driver: bridge
+    driver: bridge
