@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-wildcard-host
+spec:
+  rules:
+  - host: "gke.r0mk.ru"
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: flask
+            servicePort: 80
+            serviceType:
+
