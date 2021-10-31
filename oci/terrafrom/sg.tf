@@ -9,6 +9,13 @@ resource "oci_core_security_list" "proxy_security_list" {
   }
 
   ingress_security_rules {
+    protocol    = "1" 
+    source      = "91.146.50.0/24"
+    source_type = "CIDR_BLOCK"
+    stateless   = false 
+  }
+
+  ingress_security_rules {
     protocol = "6"
     source   = "91.146.50.0/24"
 
