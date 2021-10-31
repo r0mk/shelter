@@ -1,0 +1,8 @@
+---
+- name: Install squid proxy
+  hosts: all
+  roles:
+    - squid
+  vars:
+    squid_package: squid=4.10-1ubuntu1.5
+
