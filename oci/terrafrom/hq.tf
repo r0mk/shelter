@@ -1,14 +1,14 @@
-resource "oci_core_instance" "proxy" {
+resource "oci_core_instance" "hq" {
   availability_domain =  data.oci_identity_availability_domain.ad.name
   compartment_id      = var.tenancy_ocid
-  display_name        = "r0mkproxy"
+  display_name        = "hq"
   shape               = "VM.Standard.E2.1.Micro"
 
   create_vnic_details {
     subnet_id        = oci_core_subnet.oci_subnet.id
     display_name     = "primaryvnic"
     assign_public_ip = true
-    hostname_label   = "r0mkproxy"
+    hostname_label   = "hq"
   }
 
   source_details {
@@ -23,10 +23,10 @@ resource "oci_core_instance" "proxy" {
   }
 }
 
-output "proxy_private_ips" {
-  value = [oci_core_instance.proxy.*.private_ip]
+output "hq_private_ips" {
+  value = [oci_core_instance.hq.*.private_ip]
 }
-output "proxy_public_ips" {
-  value = [oci_core_instance.proxy.*.public_ip]
+output "hq_public_ips" {
+  value = [oci_core_instance.hq.*.public_ip]
 }
 
