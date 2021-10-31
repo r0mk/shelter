@@ -13,7 +13,9 @@ resource "oci_core_instance" "proxy" {
 
   source_details {
     source_type = "image"
-   source_id   = data.oci_core_image.ubuntu_2004_min.id
+    #source_id   = data.oci_core_image.ubuntu_2004_min.id
+    source_id   = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaala3albkmkwmgkpbe5nkbfwmhjw74e4yzzrzrvwe7tgalsblataua"
+
  }
 
   metadata = {
