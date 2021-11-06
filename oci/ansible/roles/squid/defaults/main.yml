@@ -3,6 +3,8 @@ squid_root_dir: /etc/squid
 # Example of DNS server to query
 # squid_dns_nameservers: 127.0.0.1
 
+squid_service: squid
+
 # squid auth parameters
 squid_auth_param: []
 # - name: basic
@@ -24,6 +26,7 @@ squid_acl:
 # Adapt to list your (internal) IP networks from where browsing
 # should be allowed
 squid_acl_localnet:
+  - 127.0.0.1/8
   - 10.0.0.0/8
   - 172.16.0.0/16
   - 192.168.0.0/16
@@ -161,6 +164,6 @@ squid_suppress_version: true
 # NOTE: If this you override this you need to re-specify this entry
 squid_config_files:
   - name: squid.conf
-    source: etc/squid/squid.conf.j2
+    source: squid.conf.j2
 
 
