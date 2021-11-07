@@ -1,0 +1,40 @@
+---
+- name: enable iptables geoip module
+  hosts: all
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+    - name: install dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - xtables-addons-common
+        - libnet-cidr-lite-perl
+        - libnetaddr-ip-perl
+        - libtext-csv-xs-perl
+        - libxml-csv-perl
+        - libtext-csv-perl
+        - unzip
+
+    - name: create temporary directory for geoip 
+      ansible.builtin.file:
+        path: /usr/share/xt_geoip/geoiptmp
+        state: directory
+        mode: '0755'
+
+    - name: Download geoip database
+      command: /usr/lib/xtables-addons/xt_geoip_dl
+      args:
+        chdir: /usr/share/xt_geoip/geoiptmp
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /usr/lib/xtables-addons/xt_geoip_build
+        mode: '0755'
+
+    - name: Convert geoip DB to iptables format
+      command: /usr/lib/xtables-addons/xt_geoip_build GeoIPv6.csv GeoIPCountryWhois.csv -D /usr/share/xt_geoip
+      args:
+        chdir: /usr/share/xt_geoip/geoiptmp
