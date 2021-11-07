@@ -97,11 +97,11 @@ squid_http_access:
   - action: allow
     acl:
       - localnet
-  - action: deny
+  - action: allow
     acl:
       - all
 
-squid_http_port: 3128
+squid_http_port: 33128
 
 # Define if squid should listen over HTTPS, as well as certificate files to be used
 # NOTE: If you plan to enable it, you're supposed to generate certificates by yourself
