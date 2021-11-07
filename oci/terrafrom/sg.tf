@@ -26,10 +26,10 @@ resource "oci_core_security_list" "proxy_security_list" {
 
   ingress_security_rules {
     protocol = "6"
-    source   = "91.146.50.0/24"
+    source   = "0.0.0.0/0"
     tcp_options {
-      max = "3128"
-      min = "3128"
+      max = "33128"
+      min = "33128"
     }
   }
 
