@@ -33,4 +33,15 @@ resource "oci_core_security_list" "proxy_security_list" {
     }
   }
 
+  ingress_security_rules {
+    protocol = "17"
+    source   = "0.0.0.0/0"
+    udp_options {
+      max = "1194"
+      min = "1194"
+    }
+  }
+
+
+
 }
