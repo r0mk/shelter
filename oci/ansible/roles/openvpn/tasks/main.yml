@@ -1,0 +1,41 @@
+---
+
+- name: Install requirements
+  apt: name={{item}}
+  with_items: [openvpn, udev, openssl, easy-rsa]
+
+- name: Install dependencies
+  apt: name={{item}}
+  when: openvpn_use_pam_users|default(false)
+  with_items: [libpam-pwdfile, python-passlib]
+
+- name: Create easy-rsa directory
+  command: make-cadir "{{ openvpn_etcdir }}/easy-rsa"
+  args: { creates: "{{ openvpn_etcdir }}/easy-rsa" }
+
+- name: Generate scripts
+  template: src={{ item }}.j2 dest={{ openvpn_etcdir }}/{{ item }} mode=0700
+  with_items: [vars, build-server.sh, build-client.sh, revoke-client.sh]
+
+  #- name: Generate Clients configurations
+  #template: src=client.conf.j2 dest={{ openvpn_keydir }}/example.conf
+  #notify: ['openvpn pack clients', 'openvpn fetch clients']
+  #register: openvpn_clients_changed
+
+- name: Setup PAM
+  template: src=openvpn.pam.j2 dest=/etc/pam.d/openvpn
+  when: openvpn_use_pam
+
+- name: Configure users
+  htpasswd: path={{ openvpn_etcdir }}/users name={{ item.name }} password={{ item.password }} crypt_scheme=des_crypt
+  with_items: "{{ openvpn_use_pam_users }}"
+
+- name: Configure server
+  template: src=server.conf.j2 dest={{ openvpn_etcdir }}/server.conf
+  notify: ['openvpn restart']
+
+- name: Ensure openvpn key dir has the right permission
+  file: path={{ openvpn_keydir }} state=directory mode=0700 owner={{ openvpn_user }}
+
+- name: Ensure OpenVPN is started
+  service: name=openvpn state=started enabled=yes

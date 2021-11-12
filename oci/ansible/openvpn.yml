@@ -1,0 +1,7 @@
+- hosts: all
+  remote_user: ubuntu
+  become: true
+  roles:
+    - openvpn
+  vars:
+    openvpn_use_pam: yes
