@@ -8,6 +8,11 @@ resource "oci_core_security_list" "proxy_security_list" {
     destination = "0.0.0.0/0"
   }
 
+  egress_security_rules {
+    protocol    = "17"
+    destination = "0.0.0.0/0"
+  }
+
   ingress_security_rules {
     protocol    = "1" 
     source      = "91.146.50.0/24"
@@ -37,6 +42,15 @@ resource "oci_core_security_list" "proxy_security_list" {
     protocol = "17"
     source   = "0.0.0.0/0"
     udp_options {
+      max = "1194"
+      min = "1194"
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6"
+    source   = "0.0.0.0/0"
+    tcp_options {
       max = "1194"
       min = "1194"
     }
