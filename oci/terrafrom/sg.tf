@@ -42,8 +42,8 @@ resource "oci_core_security_list" "proxy_security_list" {
     protocol = "17"
     source   = "0.0.0.0/0"
     udp_options {
-      max = "1194"
-      min = "1194"
+      max = "11194"
+      min = "11194"
     }
   }
 
@@ -51,8 +51,8 @@ resource "oci_core_security_list" "proxy_security_list" {
     protocol = "6"
     source   = "0.0.0.0/0"
     tcp_options {
-      max = "1194"
-      min = "1194"
+      max = "11194"
+      min = "11194"
     }
   }
 
