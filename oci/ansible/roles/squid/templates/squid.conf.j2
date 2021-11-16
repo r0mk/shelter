@@ -93,6 +93,11 @@ cache_peer {{ item.host }} {{ item.type }} {{ item.proxy_port}} {{ item.icp_port
 {%   endfor %}
 {% endif %}
 
+access_log none 
+#cache_store none 
+cache_log /dev/null 
+logfile_rotate 0
+
 {% if squid_shutdown_lifetime is defined %}
 shutdown_lifetime {{squid_shutdown_lifetime}}{% else %}
 {% endif %}
